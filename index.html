@@ -151,7 +151,7 @@
 <div class="container">
     <h2>商管大樓會議室登記系統</h2>
     <div class="instruction">歡迎使用線上登記系統。請填妥以下欄位，提交後系統將自動完成借用登記。</div>
-    <form action="/api/booking" method="POST">
+    <form id="booking-form" action="/api/booking" method="POST">
         <div class="form-group">
             <label for="room">會議室：</label>
             <select id="room" name="room" required>
@@ -165,9 +165,28 @@
             <input type="date" id="date" name="date" required>
         </div>
         <div class="form-group">
-            <label for="time">時 段：</label>
-            <select id="time" name="time" required>
-                <option value="" disabled selected>請選擇預約節數</option>
+            <label for="start_time">開始時段：</label>
+            <select id="start_time" name="start_time" required>
+                <option value="" disabled selected>請選擇開始節次</option>
+                <option value="第1節 (08:10-09:00)">第1節 (08:10-09:00)</option>
+                <option value="第2節 (09:10-10:00)">第2節 (09:10-10:00)</option>
+                <option value="第3節 (10:10-11:00)">第3節 (10:10-11:00)</option>
+                <option value="第4節 (11:10-12:00)">第4節 (11:10-12:00)</option>
+                <option value="第5節 (12:10-13:00)">第5節 (12:10-13:00)</option>
+                <option value="第6節 (13:10-14:00)">第6節 (13:10-14:00)</option>
+                <option value="第7節 (14:10-15:00)">第7節 (14:10-15:00)</option>
+                <option value="第8節 (15:10-16:00)">第8節 (15:10-16:00)</option>
+                <option value="第9節 (16:10-17:00)">第9節 (16:10-17:00)</option>
+                <option value="第10節 (17:10-18:00)">第10節 (17:10-18:00)</option>
+                <option value="第11節 (18:10-19:00)">第11節 (18:10-19:00)</option>
+                <option value="第12節 (19:10-20:00)">第12節 (19:10-20:00)</option>
+                <option value="第13節 (20:10-21:00)">第13節 (20:10-21:00)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="end_time">結束時段：</label>
+            <select id="end_time" name="end_time" required>
+                <option value="" disabled selected>請選擇結束節次</option>
                 <option value="第1節 (08:10-09:00)">第1節 (08:10-09:00)</option>
                 <option value="第2節 (09:10-10:00)">第2節 (09:10-10:00)</option>
                 <option value="第3節 (10:10-11:00)">第3節 (10:10-11:00)</option>
@@ -186,7 +205,7 @@
         <div class="form-group"><label for="meeting_name">名 稱：</label><input type="text" id="meeting_name" name="meeting_name" required></div>
         <div class="form-group"><label for="host">主持人：</label><input type="text" id="host" name="host" required></div>
         <div class="form-group"><label for="attendees">人 數：</label><input type="number" id="attendees" name="attendees" min="1" required></div>
-        <div class="form-group"><label for="department">單 位：</label><input type="text" id="department" name="department" placeholder="例如：運管系" required></div>
+        <div class="form-group"><label for="department">單 位：</label><input type="text" id="department" name="department" required></div>
         <div class="form-group"><label for="contact_person">聯絡人：</label><input type="text" id="contact_person" name="contact_person" required></div>
         <div class="form-group"><label for="extension">分 機：</label><input type="tel" id="extension" name="extension" required></div>
         <button type="submit" class="submit-btn">確認提交登記</button>
@@ -292,8 +311,18 @@
             
             for (let d = 0; d < 7; d++) {
                 let targetDate = daysDates[d];
-                let searchPrefix = pString.split(' ')[0];
-                let booking = allBookings.find(b => b.room === currentRoom && b.date === targetDate && b.time.startsWith(searchPrefix));
+                let currentPeriodNum = p + 1;
+                
+                let booking = allBookings.find(b => {
+                    if (b.room !== currentRoom || b.date !== targetDate) return false;
+                    let match = b.time.match(/第(\d+)節.*~第(\d+)節.*/);
+                    if (match) {
+                        let start = parseInt(match[1], 10);
+                        let end = parseInt(match[2], 10);
+                        return (currentPeriodNum >= start && currentPeriodNum <= end);
+                    }
+                    return b.time.startsWith(pString.split(' ')[0]);
+                });
                 
                 if (booking) {
                     let tooltip = `單位：${booking.department}&#10;聯絡人：${booking.contact_person}&#10;會議：${booking.meeting_name}`;
@@ -306,6 +335,21 @@
         }
         document.getElementById('grid-body').innerHTML = bodyHtml;
     }
+
+    document.getElementById('booking-form').onsubmit = function(e) {
+        let startVal = document.getElementById('start_time').value;
+        let endVal = document.getElementById('end_time').value;
+        let startMatch = startVal.match(/第(\d+)節/);
+        let endMatch = endVal.match(/第(\d+)節/);
+        if (startMatch && endMatch) {
+            let startNum = parseInt(startMatch[1], 10);
+            let endNum = parseInt(endMatch[2], 10);
+            if (endNum < startNum) {
+                alert('錯誤：結束時段不能早於開始時段！');
+                e.preventDefault();
+            }
+        }
+    };
 
     window.onload = fetchBookings;
 </script>
