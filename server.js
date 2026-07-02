@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const GOOGLE_SCRIPT_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnTpqNa-_pcbUKzLfa_NL50f1oCLGhCJLWNAmfdAiQuTB0IpfinGpW4a6gsugLmnltF0XTgs7SvY1PmpTSzv0ictaVjzE4rMQfbPcRKTbuM0P9TAjIai6ZLJ8X_BvCY5DLk-zsD4HmV6LgoimkO_3Q2gzzbmc3WjFLrTNDLkBsmVtQeHPu204mif4lJW38X-LC2TNicQNcEweUk8xO-5V1AvUbuQ9L8tm0dpihVuSW-TD_KDK1HnvtkyWPVkHa5Kge2fLitsq7MxdcnLJApVBG2SAPTa4w&lib=MbbZK1kVED2LFyBoS8MslnqLeasDJayMR';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyE_rPAb-9k0MXRGqrdzKhanAW6k7DXTB_lLLg4fUBVqXiQfQkJjDpkmFC78GxayQ9toA/exec';
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -50,9 +50,18 @@ app.post('/api/booking', async (req, res) => {
             body: JSON.stringify(newBooking)
         });
         
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch (e) {
+            if(response.ok) {
+                result = { status: 'success' };
+            } else {
+                throw new Error("回傳格式錯誤");
+            }
+        }
         
-        if (result.status === 'success') {
+        if (result && result.status === 'success') {
             res.send(`
                 <div style="text-align: center; margin-top: 100px; font-family: 'Microsoft JhengHei', sans-serif;">
                     <h1 style="color: #2ecc71;">🎉 登記成功！</h1>
@@ -68,7 +77,7 @@ app.post('/api/booking', async (req, res) => {
         }
     } catch (error) {
         console.error("無法寫入 Google 試算表:", error);
-        res.status(500).send("<h1>系統錯誤，無法寫入 Google 試算表。</h1>");
+        res.status(500).send("<h1 style='color:red; text-align:center; margin-top:50px;'>系統錯誤，無法寫入 Google 試算表。請確認網址與權限設定。</h1>");
     }
 });
 
