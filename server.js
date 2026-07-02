@@ -75,7 +75,7 @@ app.post('/api/booking', async (req, res) => {
     } catch (error) {
         res.status(500).send(`
             <script>
-                alert('系統錯誤，無法寫入！請確認 server.js 裡的網址結尾是否為 /exec');
+                alert('系統錯誤，無法寫入！請確認 server.js 裡的網址是否正確');
                 window.location.href = '/';
             </script>
         `);
