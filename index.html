@@ -126,12 +126,11 @@
             let data = await response.json();
             
             allBookings = data.map(b => {
-                if (b.date) {
+                b.safeDate = b.date;
+                if (b.date && b.date.includes('T')) {
                     let d = new Date(b.date);
                     if (!isNaN(d.getTime())) {
                         b.safeDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                    } else {
-                        b.safeDate = b.date;
                     }
                 }
                 return b;
@@ -212,7 +211,7 @@
                         let end = parseInt(match[2], 10);
                         return (currentPeriodNum >= start && currentPeriodNum <= end);
                     }
-                    return b.time.startsWith(pString.split(' ')[0]);
+                    return false;
                 });
                 
                 if (booking) {
@@ -228,6 +227,8 @@
     }
 
     document.getElementById('booking-form').onsubmit = function(e) {
+        const submitBtn = document.querySelector('.submit-btn');
+
         try {
             let roomVal = document.getElementById('room').value;
             let dateVal = document.getElementById('date').value;
@@ -248,8 +249,8 @@
                 }
 
                 let isConflict = allBookings.some(b => {
-                    if (!b || !b.time || !b.safeDate) return false; // 略過錯誤資料
-                    if (b.room !== roomVal || b.safeDate !== dateVal) return false; // 房間或日期不同就沒事
+                    if (!b || !b.time || !b.safeDate) return false; 
+                    if (b.room !== roomVal || b.safeDate !== dateVal) return false; 
 
                     let existMatch = b.time.match(/第(\d+)節.*~第(\d+)節.*/);
                     if (existMatch) {
@@ -257,25 +258,26 @@
                         let existEnd = parseInt(existMatch[2], 10);
                         return (startNum <= existEnd && existStart <= endNum);
                     }
-
-                    let singleMatch = b.time.match(/第(\d+)節/);
-                    if (singleMatch) {
-                        let existPeriod = parseInt(singleMatch[1], 10);
-                        return (startNum <= existPeriod && existPeriod <= endNum);
-                    }
-
                     return false;
                 });
 
                 if (isConflict) {
                     alert('⚠️ 預約失敗：您選擇的時段中，已有部分或全部被他人預約了！\\n\\n請查看下方時程表，並選擇其他空閒的時段。');
                     e.preventDefault(); 
+                    return;
                 }
+
+                submitBtn.disabled = true;
+                submitBtn.innerText = '資料傳送中，請稍候...';
+                submitBtn.style.backgroundColor = '#95a5a6';
             }
         } catch (err) {
             console.error("驗證過程發生錯誤:", err);
             alert("系統檢查發生異常，為保護資料，請重新整理網頁後再試一次。");
             e.preventDefault();
+            submitBtn.disabled = false;
+            submitBtn.innerText = '確認提交登記';
+            submitBtn.style.backgroundColor = '#2ecc71';
         }
     };
 
