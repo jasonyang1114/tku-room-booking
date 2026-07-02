@@ -242,7 +242,16 @@
     async function fetchBookings() {
         try {
             const response = await fetch('/api/bookings');
-            allBookings = await response.json();
+            let data = await response.json();
+            
+            // 自動校正 Google 試算表傳回來的日期偏差
+            allBookings = data.map(b => {
+                if (b.date && b.date.includes('T')) {
+                    let d = new Date(b.date);
+                    b.date = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                }
+                return b;
+            });
             renderGrid();
         } catch (error) {
             console.error(error);
