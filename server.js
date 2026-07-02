@@ -15,7 +15,8 @@ app.get('/', (req, res) => {
 
 app.get('/api/bookings', async (req, res) => {
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const fetchUrl = GOOGLE_SCRIPT_URL + '?t=' + Date.now();
+        const response = await fetch(fetchUrl, { cache: 'no-store' });
         const data = await response.json();
         res.json(data);
     } catch (error) {
