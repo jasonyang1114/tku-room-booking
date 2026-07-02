@@ -19,7 +19,7 @@ app.get('/api/bookings', async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error("無法從 Google 試算表讀取資料:", error);
+        console.error("讀取失敗:", error);
         res.status(500).json({ error: "無法從試算表讀取資料" });
     }
 });
@@ -63,26 +63,24 @@ app.post('/api/booking', async (req, res) => {
         
         if (result && result.status === 'success') {
             res.send(`
-                <div style="text-align: center; margin-top: 100px; font-family: 'Microsoft JhengHei', sans-serif;">
-                    <h1 style="color: #2ecc71;">🎉 登記成功！</h1>
-                    <p style="font-size: 1.2em; color: #555;">資料已成功同步至 Google 試算表。</p>
-                    <p style="color: #999;">網頁將在 3 秒後自動返回...</p>
-                    <script>
-                        setTimeout(() => { window.location.href = '/'; }, 3000);
-                    </script>
-                </div>
+                <script>
+                    alert('登記成功！');
+                    window.location.href = '/';
+                </script>
             `);
         } else {
-            throw new Error("Google Script 回傳狀態異常");
+            throw new Error("狀態異常");
         }
     } catch (error) {
-        console.error("無法寫入 Google 試算表:", error);
-        res.status(500).send("<h1 style='color:red; text-align:center; margin-top:50px;'>系統錯誤，無法寫入 Google 試算表。請確認網址與權限設定。</h1>");
+        res.status(500).send(`
+            <script>
+                alert('系統錯誤，無法寫入！請確認 server.js 裡的網址結尾是否為 /exec');
+                window.location.href = '/';
+            </script>
+        `);
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(` 系統後端已成功啟動並串接 Google 試算表！`);
-    console.log(`==================================================`);
+    console.log(`Server is running on port ${PORT}`);
 });
