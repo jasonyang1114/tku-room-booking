@@ -25,13 +25,15 @@ app.get('/api/bookings', async (req, res) => {
 });
 
 app.post('/api/booking', async (req, res) => {
-    const { room, date, time, meeting_name, host, attendees, department, contact_person, extension } = req.body;
+    const { room, date, start_time, end_time, meeting_name, host, attendees, department, contact_person, extension } = req.body;
+
+    const time = `${start_time}~${end_time}`;
 
     const newBooking = {
         id: Date.now(),
         room,
         date,
-        time,
+        time,        
         meeting_name,
         host,
         attendees: parseInt(attendees, 10),
