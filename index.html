@@ -22,6 +22,10 @@
             max-width: 700px;
             width: 100%;
             margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .container-large {
+            max-width: 1100px;
         }
         h2 {
             text-align: center;
@@ -31,7 +35,6 @@
             margin-bottom: 20px;
             letter-spacing: 2px;
         }
-        /* 表單樣式 */
         .instruction {
             font-size: 0.95em;
             color: #2c3e50;
@@ -42,26 +45,105 @@
             line-height: 1.6;
             border-radius: 0 4px 4px 0;
         }
-        .form-group { margin-bottom: 15px; display: flex; align-items: center; }
-        .form-group label { flex: 0 0 100px; font-weight: bold; }
-        .form-group input, .form-group select { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 0 0 100px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
         .submit-btn {
-            width: 100%; padding: 12px; background-color: #2ecc71; color: white; border: none; border-radius: 4px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 10px;
+            width: 100%;
+            padding: 12px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
         }
-        .submit-btn:hover { background-color: #27ae60; }
-        
-        /* 預約時段登記表樣式 */
-        .schedule-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+        .submit-btn:hover {
+            background-color: #27ae60;
         }
-        .filter-select { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 1em; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-        th { background-color: #f8f9fa; color: #2c3e50; white-space: nowrap; }
-        tr:nth-child(even) { background-color: #fafafa; }
-        tr:hover { background-color: #f1f1f1; }
-        .badge { background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9em; }
-        .badge.b1105 { background-color: #9b59b6; }
+        .controls-top {
+            margin-bottom: 10px;
+        }
+        .controls-week {
+            margin-bottom: 20px;
+        }
+        .room-btn, .week-btn {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 1em;
+        }
+        .room-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .week-btn {
+            border-color: #5bc0de;
+            color: #17a2b8;
+        }
+        .week-btn:hover {
+            background: #e0f7fa;
+        }
+        .grid-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 5px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            white-space: nowrap;
+        }
+        .cell-time {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .cell-free {
+            background-color: #fff;
+            color: #333;
+        }
+        .cell-booked {
+            background-color: #ff6b6b;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .cell-booked:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -78,8 +160,29 @@
                 <option value="B1105">B1105 會議室</option>
             </select>
         </div>
-        <div class="form-group"><label for="date">日 期：</label><input type="date" id="date" name="date" required></div>
-        <div class="form-group"><label for="time">時 段：</label><input type="text" id="time" name="time" placeholder="例如：第1-2節 或 08:10-10:00" required></div>
+        <div class="form-group">
+            <label for="date">日 期：</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+        <div class="form-group">
+            <label for="time">時 段：</label>
+            <select id="time" name="time" required>
+                <option value="" disabled selected>請選擇預約節數</option>
+                <option value="第1節 (08:10-09:00)">第1節 (08:10-09:00)</option>
+                <option value="第2節 (09:10-10:00)">第2節 (09:10-10:00)</option>
+                <option value="第3節 (10:10-11:00)">第3節 (10:10-11:00)</option>
+                <option value="第4節 (11:10-12:00)">第4節 (11:10-12:00)</option>
+                <option value="第5節 (12:10-13:00)">第5節 (12:10-13:00)</option>
+                <option value="第6節 (13:10-14:00)">第6節 (13:10-14:00)</option>
+                <option value="第7節 (14:10-15:00)">第7節 (14:10-15:00)</option>
+                <option value="第8節 (15:10-16:00)">第8節 (15:10-16:00)</option>
+                <option value="第9節 (16:10-17:00)">第9節 (16:10-17:00)</option>
+                <option value="第10節 (17:10-18:00)">第10節 (17:10-18:00)</option>
+                <option value="第11節 (18:10-19:00)">第11節 (18:10-19:00)</option>
+                <option value="第12節 (19:10-20:00)">第12節 (19:10-20:00)</option>
+                <option value="第13節 (20:10-21:00)">第13節 (20:10-21:00)</option>
+            </select>
+        </div>
         <div class="form-group"><label for="meeting_name">名 稱：</label><input type="text" id="meeting_name" name="meeting_name" required></div>
         <div class="form-group"><label for="host">主持人：</label><input type="text" id="host" name="host" required></div>
         <div class="form-group"><label for="attendees">人 數：</label><input type="number" id="attendees" name="attendees" min="1" required></div>
@@ -90,80 +193,121 @@
     </form>
 </div>
 
-<div class="container">
-    <div class="schedule-header">
-        <h2 style="margin: 0; border: none; padding: 0;">目前預約登記表</h2>
-        <select id="filter-room" class="filter-select" onchange="fetchAndRenderBookings()">
-            <option value="all">顯示全部會議室</option>
-            <option value="B1104">只看 B1104</option>
-            <option value="B1105">只看 B1105</option>
-        </select>
+<div class="container container-large">
+    <div class="controls-top">
+        <button class="room-btn active" onclick="setRoom('B1104', this)">B1104</button>
+        <button class="room-btn" onclick="setRoom('B1105', this)">B1105</button>
     </div>
+    <div class="controls-week">
+        <button class="week-btn" onclick="changeWeek(-1)">上一週</button>
+        <button class="week-btn" onclick="changeWeek(1)">下一週</button>
+    </div>
+    
+    <div class="grid-title" id="grid-title">B1104-借用時程表</div>
     
     <div style="overflow-x: auto;">
         <table>
             <thead>
-                <tr>
-                    <th>日期</th>
-                    <th>時段</th>
-                    <th>會議室</th>
-                    <th>單位 / 聯絡人</th>
-                </tr>
+                <tr id="grid-header"></tr>
             </thead>
-            <tbody id="schedule-body">
-                <tr><td colspan="4">資料載入中...</td></tr>
-            </tbody>
+            <tbody id="grid-body"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // 使用 JavaScript 向後端取得預約資料
-    async function fetchAndRenderBookings() {
+    let allBookings = [];
+    let currentRoom = 'B1104';
+    let currentDate = new Date();
+
+    async function fetchBookings() {
         try {
-            // 向我們剛寫的 API 拿資料
             const response = await fetch('/api/bookings');
-            const bookings = await response.json();
-            
-            const tbody = document.getElementById('schedule-body');
-            const filterRoom = document.getElementById('filter-room').value;
-            
-            // 依照日期先後順序進行排序
-            bookings.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            // 依照下拉選單過濾會議室
-            const filteredBookings = filterRoom === 'all' 
-                ? bookings 
-                : bookings.filter(b => b.room === filterRoom);
-
-            tbody.innerHTML = ''; // 清空原本的「載入中...」文字
-
-            if (filteredBookings.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="color:#7f8c8d;">目前尚無預約紀錄</td></tr>';
-                return;
-            }
-
-            // 將每一筆資料轉成表格的一列 (Row)
-            filteredBookings.forEach(b => {
-                const tr = document.createElement('tr');
-                const badgeClass = b.room === 'B1105' ? 'badge b1105' : 'badge';
-                
-                tr.innerHTML = `
-                    <td><strong>${b.date}</strong></td>
-                    <td>${b.time}</td>
-                    <td><span class="${badgeClass}">${b.room}</span></td>
-                    <td>${b.department} <br> <small>(${b.contact_person} / 分機:${b.extension})</small></td>
-                `;
-                tbody.appendChild(tr);
-            });
+            allBookings = await response.json();
+            renderGrid();
         } catch (error) {
-            console.error('讀取失敗:', error);
-            document.getElementById('schedule-body').innerHTML = '<tr><td colspan="4" style="color:red;">無法讀取預約資料，請確保後端伺服器已啟動。</td></tr>';
+            console.error(error);
         }
     }
 
-    // 網頁一打開時，就自動執行一次抓取資料的動作
-    window.onload = fetchAndRenderBookings;
+    function setRoom(room, btn) {
+        currentRoom = room;
+        document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderGrid();
+    }
+
+    function changeWeek(offset) {
+        currentDate.setDate(currentDate.getDate() + (offset * 7));
+        renderGrid();
+    }
+
+    function getMonday(d) {
+        let date = new Date(d);
+        let day = date.getDay();
+        let diff = date.getDate() - day + (day === 0 ? -6 : 1);
+        return new Date(date.setDate(diff));
+    }
+
+    function formatDate(d) {
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        let year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
+    }
+
+    function renderGrid() {
+        document.getElementById('grid-title').innerText = currentRoom + '-借用時程表';
+        
+        let monday = getMonday(currentDate);
+        let weekDays = ['(週一)', '(週二)', '(週三)', '(週四)', '(週五)', '(週六)', '(週日)'];
+        let headerHtml = '<th>節次 \\ 日期</th>';
+        let daysDates = [];
+        
+        for (let i = 0; i < 7; i++) {
+            let target = new Date(monday);
+            target.setDate(monday.getDate() + i);
+            let fDate = formatDate(target);
+            daysDates.push(fDate);
+            headerHtml += `<th>${fDate}<br>${weekDays[i]}</th>`;
+        }
+        document.getElementById('grid-header').innerHTML = headerHtml;
+
+        let periods = [
+            "第1節 (08:10-09:00)", "第2節 (09:10-10:00)", "第3節 (10:10-11:00)",
+            "第4節 (11:10-12:00)", "第5節 (12:10-13:00)", "第6節 (13:10-14:00)",
+            "第7節 (14:10-15:00)", "第8節 (15:10-16:00)", "第9節 (16:10-17:00)",
+            "第10節 (17:10-18:00)", "第11節 (18:10-19:00)", "第12節 (19:10-20:00)",
+            "第13節 (20:10-21:00)"
+        ];
+        
+        let bodyHtml = '';
+        for (let p = 0; p < periods.length; p++) {
+            let pString = periods[p];
+            let pName = pString.split(' ')[0] + ' ' + pString.substring(pString.indexOf('(') + 1, pString.indexOf('-'));
+            
+            bodyHtml += `<tr><td class="cell-time">${pName}</td>`;
+            
+            for (let d = 0; d < 7; d++) {
+                let targetDate = daysDates[d];
+                let searchPrefix = pString.split(' ')[0];
+                let booking = allBookings.find(b => b.room === currentRoom && b.date === targetDate && b.time.startsWith(searchPrefix));
+                
+                if (booking) {
+                    let tooltip = `單位：${booking.department}&#10;聯絡人：${booking.contact_person}&#10;會議：${booking.meeting_name}`;
+                    bodyHtml += `<td class="cell-booked" title="${tooltip}">已預約</td>`;
+                } else {
+                    bodyHtml += `<td class="cell-free">空閒</td>`;
+                }
+            }
+            bodyHtml += `</tr>`;
+        }
+        document.getElementById('grid-body').innerHTML = bodyHtml;
+    }
+
+    window.onload = fetchBookings;
 </script>
 
 </body>
