@@ -240,7 +240,8 @@
             
             if (startMatch && endMatch) {
                 let startNum = parseInt(startMatch[1], 10);
-                let endNum = parseInt(endMatch[2], 10);
+                
+                let endNum = parseInt(endMatch[1], 10);
                 
                 if (endNum < startNum) {
                     alert('❌ 錯誤：結束時段不能早於開始時段！');
