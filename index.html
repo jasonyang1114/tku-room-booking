@@ -360,16 +360,47 @@
     }
 
     document.getElementById('booking-form').onsubmit = function(e) {
+        let roomVal = document.getElementById('room').value;
+        let dateVal = document.getElementById('date').value;
         let startVal = document.getElementById('start_time').value;
         let endVal = document.getElementById('end_time').value;
+        
         let startMatch = startVal.match(/第(\d+)節/);
         let endMatch = endVal.match(/第(\d+)節/);
+        
         if (startMatch && endMatch) {
             let startNum = parseInt(startMatch[1], 10);
             let endNum = parseInt(endMatch[2], 10);
+            
             if (endNum < startNum) {
                 alert('錯誤：結束時段不能早於開始時段！');
                 e.preventDefault();
+                return;
+            }
+
+            let isConflict = allBookings.some(b => {
+                if (b.room !== roomVal || b.date !== dateVal) return false;
+
+                let existMatch = b.time.match(/第(\d+)節.*~第(\d+)節.*/);
+                if (existMatch) {
+                    let existStart = parseInt(existMatch[1], 10);
+                    let existEnd = parseInt(existMatch[2], 10);
+                    
+                    return (startNum <= existEnd && existStart <= endNum);
+                }
+
+                let singleMatch = b.time.match(/第(\d+)節/);
+                if (singleMatch) {
+                    let existPeriod = parseInt(singleMatch[1], 10);
+                    return (startNum <= existPeriod && existPeriod <= endNum);
+                }
+
+                return false;
+            });
+
+            if (isConflict) {
+                alert('⚠️ 預約失敗：您選擇的時段區間中，已有部分或全部被他人預約了！\n\n請查看下方時程表，並選擇其他空閒的時段。');
+                e.preventDefault(); 
             }
         }
     };
