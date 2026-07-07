@@ -46,8 +46,10 @@
                 <option value="B1105">B1105 會議室</option>
             </select>
         </div>
-        <div class="form-group"><label for="date">日 期：</label><input type="date" id="date" name="date" required></div>
         <div class="form-group">
+            <label for="date">日 期：</label>
+            <input type="text" id="date" name="date" placeholder="年 / 月 / 日" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" required>
+        </div>        <div class="form-group">
             <label for="start_time">開始時段：</label>
             <select id="start_time" name="start_time" required>
                 <option value="" disabled selected>請選擇開始節次</option>
@@ -120,38 +122,19 @@
     let currentRoom = 'B1104';
     let currentDate = new Date();
 
-    function setupDateLimit() {
-        const dateInput = document.getElementById('date');
-        const today = new Date();
-        const maxDate = new Date();
-        
-        maxDate.setMonth(today.getMonth() + 4);
-
-        const formatYMD = (d) => {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-
-        dateInput.min = formatYMD(today);   
-        dateInput.max = formatYMD(maxDate); 
-    }
-
-    function normalizeDateStr(dateStr) {
-        if (!dateStr) return '';
-        let d = new Date(dateStr);
-        if (isNaN(d.getTime())) return dateStr;
-        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    }
-
     async function fetchBookings() {
         try {
             const response = await fetch('/api/bookings?t=' + new Date().getTime());
             let data = await response.json();
             
             allBookings = data.map(b => {
-                b.safeDate = normalizeDateStr(b.date);
+                b.safeDate = b.date;
+                if (b.date && b.date.includes('T')) {
+                    let d = new Date(b.date);
+                    if (!isNaN(d.getTime())) {
+                        b.safeDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    }
+                }
                 return b;
             });
             renderGrid();
@@ -259,6 +242,7 @@
             
             if (startMatch && endMatch) {
                 let startNum = parseInt(startMatch[1], 10);
+                
                 let endNum = parseInt(endMatch[1], 10);
                 
                 if (endNum < startNum) {
@@ -281,7 +265,7 @@
                 });
 
                 if (isConflict) {
-                    alert('⚠️ 預約失敗：您選擇的時段中，已有部分或全部被他人預約了！\\n\\n請查看下方時程表，並選擇其他空閒的時段。');
+                    alert('⚠️ 預約失敗：您選擇的時段中，已有部分或全部被他人預約了！');
                     e.preventDefault(); 
                     return;
                 }
@@ -300,10 +284,7 @@
         }
     };
 
-    window.onload = function() {
-        setupDateLimit();
-        fetchBookings();
-    };
+    window.onload = fetchBookings;
 </script>
 
 </body>
